@@ -1,0 +1,9 @@
+package com.kungo.common.exception;
+
+import org.springframework.http.HttpStatus;
+
+public class ConflictException extends BusinessException {
+    public ConflictException(String code, Object... args) {
+        super(HttpStatus.CONFLICT, code, args);
+    }
+}

@@ -1,0 +1,94 @@
+version: "3.9"
+
+name: kungo
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kungo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kungo
+      POSTGRES_USER: kungo
+      POSTGRES_PASSWORD: kungo_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kungo -d kungo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [kungo-net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: kungo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [kungo-net]
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: kungo-mailhog
+    restart: unless-stopped
+    ports:
+      - "11025:1025" # SMTP (port hôte décalé : 1025 déjà utilisé par un autre projet local)
+      - "18025:8025" # UI web (idem pour 8025)
+    networks: [kungo-net]
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: kungo-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: kungo
+      DB_USER: kungo
+      DB_PASSWORD: kungo_dev_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_prod_min_256_bits_secret_key_kungo}
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:4200
+    ports:
+      - "8080:8080"
+    networks: [kungo-net]
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: kungo-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      API_BASE_URL: http://localhost:8080/api/v1
+    ports:
+      - "4200:80"
+    networks: [kungo-net]
+
+networks:
+  kungo-net:
+    driver: bridge
+
+volumes:
+  pg_data:

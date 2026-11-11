@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+ * Palette de marque KÛNGO — identité "artisanat événementiel africain"
+ * (terre brûlée / or / rouge traditionnel), reprise du template fourni.
+ * Réutilisée par les utilitaires Tailwind (bg-brand-600, text-gold-500...)
+ * et par les overrides Angular Material dans styles.scss. Le mode sombre est
+ * piloté par la classe `.dark` posée sur <html> (voir ThemeService).
+ */
+@theme {
+  /* Terre brûlée — couleur principale (identité KÛNGO) */
+  --color-brand-50: #fbf3ef;
+  --color-brand-100: #f3e0d6;
+  --color-brand-200: #e6c1ad;
+  --color-brand-300: #d4a373;
+  --color-brand-400: #a8623d;
+  --color-brand-500: #8b4a2e;
+  --color-brand-600: #6b2e1a;
+  --color-brand-700: #5a2515;
+  --color-brand-800: #481d11;
+  --color-brand-900: #38160d;
+
+  /* Or — accents décoratifs, notes, badges premium */
+  --color-gold-50: #fdf8e7;
+  --color-gold-100: #faedc0;
+  --color-gold-200: #f3da85;
+  --color-gold-300: #e8c84c;
+  --color-gold-400: #ddb52a;
+  --color-gold-500: #d4a017;
+  --color-gold-600: #b88a0f;
+  --color-gold-700: #96700d;
+  --color-gold-800: #74560a;
+  --color-gold-900: #523d07;
+
+  /* Rouge traditionnel — appels à l'action forts */
+  --color-accent-50: #fdf0ee;
+  --color-accent-100: #f9d7d1;
+  --color-accent-200: #f0aca0;
+  --color-accent-300: #e0796a;
+  --color-accent-400: #c65142;
+  --color-accent-500: #b03a2e;
+  --color-accent-600: #8e2d22;
+  --color-accent-700: #741f16;
+  --color-accent-800: #5c180f;
+  --color-accent-900: #45110b;
+
+  --color-cream: #faf7f0;
+
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  --radius-pill: 999px;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html, body {
+  height: 100%;
+}

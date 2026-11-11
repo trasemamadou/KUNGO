@@ -1,0 +1,125 @@
+// Theming Angular Material (Material 3) avec la palette de marque KÛNGO
+// (terre brûlée / or / rouge traditionnel — identité "artisanat événementiel africain").
+// Base structurale sur une palette M3 chaude (orange), puis surcharge précise des
+// tokens système `--mat-sys-*` pour matcher exactement les couleurs du template.
+// Le mode sombre est activé en posant la classe `.dark` sur <html> (voir ThemeService).
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$orange-palette,
+      tertiary: mat.$yellow-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+  color-scheme: light;
+
+  // --- Couleurs de marque exactes (surcharge des tokens M3 générés ci-dessus) ---
+  --mat-sys-primary: #6b2e1a;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #f3e0d6;
+  --mat-sys-on-primary-container: #38160d;
+
+  --mat-sys-tertiary: #d4a017;
+  --mat-sys-on-tertiary: #2d1b0f;
+  --mat-sys-tertiary-container: #faedc0;
+  --mat-sys-on-tertiary-container: #523d07;
+
+  --mat-sys-error: #b03a2e;
+  --mat-sys-on-error: #ffffff;
+
+  --mat-sys-surface: #faf7f0;
+  --mat-sys-on-surface: #1e293b;
+  --mat-sys-surface-container: #ffffff;
+  --mat-sys-surface-container-high: #f3ece1;
+  --mat-sys-surface-container-highest: #ede3d5;
+  --mat-sys-outline: #cbb69f;
+  --mat-sys-outline-variant: #ede6dc;
+}
+
+html.dark {
+  @include mat.theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$orange-palette,
+      tertiary: mat.$yellow-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+  color-scheme: dark;
+
+  --mat-sys-primary: #e8b088;
+  --mat-sys-on-primary: #38160d;
+  --mat-sys-primary-container: #5a2515;
+  --mat-sys-on-primary-container: #f3e0d6;
+
+  --mat-sys-tertiary: #e8c84c;
+  --mat-sys-on-tertiary: #3d2e05;
+  --mat-sys-tertiary-container: #74560a;
+  --mat-sys-on-tertiary-container: #fdf8e7;
+
+  --mat-sys-error: #e0796a;
+  --mat-sys-on-error: #45110b;
+
+  --mat-sys-surface: #1c1410;
+  --mat-sys-on-surface: #f3ece1;
+  --mat-sys-surface-container: #241a14;
+  --mat-sys-surface-container-high: #2e221a;
+  --mat-sys-surface-container-highest: #382a20;
+  --mat-sys-outline: #7a6754;
+  --mat-sys-outline-variant: #382a20;
+}
+
+body {
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html, body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--mat-sys-outline-variant);
+  border-radius: 8px;
+}
+
+// --- Formes "pilule" façon KÛNGO sur les composants Material transverses ---
+// (évite de retoucher chaque template : un bouton/champ Material reste cohérent
+// avec le reste de l'app quel que soit l'endroit où il est utilisé.)
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  border-radius: 999px !important;
+}
+
+.mat-mdc-form-field:not(.kungo-square-field) .mdc-notched-outline__leading {
+  border-top-left-radius: 999px !important;
+  border-bottom-left-radius: 999px !important;
+}
+.mat-mdc-form-field:not(.kungo-square-field) .mdc-notched-outline__trailing {
+  border-top-right-radius: 999px !important;
+  border-bottom-right-radius: 999px !important;
+}
+
+.mat-mdc-card {
+  border-radius: 16px !important;
+}

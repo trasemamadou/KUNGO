@@ -1,0 +1,84 @@
+version: "3.9"
+
+name: kungo-prod
+
+# Déploiement de production : pas de ports DB/Redis exposés publiquement, secrets
+# via variables d'environnement (fichier .env non versionné, voir .env.example),
+# images versionnées (construites par la CI, voir .github/workflows/ci.yml).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-kungo}
+      POSTGRES_USER: ${DB_USER:-kungo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-kungo} -d ${DB_NAME:-kungo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [kungo-net]
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [kungo-net]
+
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/kungo/backend:latest}
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-kungo}
+      DB_USER: ${DB_USER:-kungo}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MAIL_HOST: ${MAIL_HOST:?MAIL_HOST is required}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_FROM: ${MAIL_FROM:-no-reply@kungo.app}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:?APP_CORS_ALLOWED_ORIGINS is required}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - "8080:8080"
+    networks: [kungo-net]
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/kungo/frontend:latest}
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      API_BASE_URL: ${API_BASE_URL:?API_BASE_URL is required}
+    ports:
+      - "80:80"
+    networks: [kungo-net]
+
+networks:
+  kungo-net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  uploads:
